@@ -719,23 +719,15 @@ export default function Dashboard() {
                   const yrs = [...allYears].sort();
                   if (yrs.length < 2) return null;
 
-                  // Compute current peer median for each metric (peers are external, no history)
-                  const peerMedianForKey = (key: string) => {
-                    const vals = peers.map(p => (p as unknown as Record<string, number | undefined>)[key]).filter(v => v != null) as number[];
-                    return vals.length >= 2 ? median(vals) : null;
-                  };
-
                   return (
                     <Card className="p-6 mb-6">
-                      <h3 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">KPI Trends — Company vs Peers vs Industry</h3>
+                      <h3 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">KPI Trends — Company vs Industry</h3>
                       <div className="flex flex-wrap gap-4 text-xs text-slate-400 mb-4">
                         <span><span className="inline-block w-3 h-0.5 bg-blue-600 mr-1 align-middle" /> {sel.name}</span>
-                        <span><span className="inline-block w-3 h-0.5 bg-emerald-500 mr-1 align-middle" style={{ borderBottom: '2px dotted #10b981' }} /> Peer Group Median</span>
                         <span><span className="inline-block w-3 h-0.5 bg-amber-400 mr-1 align-middle" style={{ borderBottom: '2px dashed #f59e0b' }} /> {sel.broad_sector} Median</span>
                       </div>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {trendKeys.map(([key, label, suffix]) => {
-                          const peerMed = peerMedianForKey(key);
                           const lineData = yrs.map(yr => {
                             const compVal = sel.kpi_history?.[yr]?.[key] ?? null;
                             const indVals = industryCos.filter(c => c.kpi_history?.[yr]?.[key] != null).map(c => c.kpi_history![yr][key]);
@@ -743,7 +735,6 @@ export default function Dashboard() {
                               year: yr.toString(),
                               company: compVal,
                               industry: indVals.length >= 3 ? median(indVals) : null,
-                              peerGroup: peerMed,
                             };
                           }).filter(d => d.company != null || d.industry != null);
                           if (lineData.length < 2) return null;
@@ -761,13 +752,11 @@ export default function Dashboard() {
                                       <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
                                         <div className="font-semibold text-slate-700 mb-1">FY {d.year}</div>
                                         {d.company != null && <div className="text-blue-600">{sel.name}: {d.company.toFixed(1)}{suffix}</div>}
-                                        {d.peerGroup != null && <div className="text-emerald-600">Peer Group: {d.peerGroup.toFixed(1)}{suffix}</div>}
                                         {d.industry != null && <div className="text-amber-600">{sel.broad_sector}: {d.industry.toFixed(1)}{suffix}</div>}
                                       </div>
                                     );
                                   }} />
                                   <Line type="monotone" dataKey="company" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 4, fill: '#2563eb' }} connectNulls />
-                                  <Line type="monotone" dataKey="peerGroup" stroke="#10b981" strokeWidth={2} strokeDasharray="2 2" dot={{ r: 3, fill: '#10b981' }} connectNulls />
                                   <Line type="monotone" dataKey="industry" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="5 3" dot={{ r: 2, fill: '#f59e0b' }} connectNulls />
                                 </LineChart>
                               </ResponsiveContainer>
