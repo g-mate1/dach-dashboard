@@ -648,9 +648,41 @@ export default function Dashboard() {
                     }
                   }
 
+                  // Comprehensive 1-2 sentence assessment
+                  const assessment = (() => {
+                    const parts: string[] = [];
+                    // Profitability positioning
+                    if (margin) {
+                      if (margin.isGood && Math.abs(margin.diff) > 20) parts.push(`a clear margin leader among peers (${margin.cv.toFixed(0)}% ${margin.label} vs ${margin.med.toFixed(0)}% median)`);
+                      else if (margin.isGood) parts.push(`above-average profitability (${margin.cv.toFixed(0)}% ${margin.label})`);
+                      else if (margin.isBad && Math.abs(margin.diff) > 20) parts.push(`significantly lower margins than peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%)`);
+                      else if (margin.isBad) parts.push(`below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%)`);
+                      else parts.push(`margins in line with peers (${margin.cv.toFixed(0)}%)`);
+                    }
+                    // Valuation context
+                    if (pe) {
+                      if (pe.isGood && Math.abs(pe.diff) > 20) parts.push(`trading at a notable valuation discount (${pe.cv.toFixed(0)}x P/E vs ${pe.med.toFixed(0)}x)`);
+                      else if (pe.isGood) parts.push(`valued below peers (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x P/E)`);
+                      else if (pe.isBad && Math.abs(pe.diff) > 20) parts.push(`commanding a significant premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x P/E)`);
+                      else if (pe.isBad) parts.push(`trading above peer median valuation`);
+                    }
+                    // Balance sheet
+                    if (de) {
+                      if (de.isGood) parts.push(`with a conservative balance sheet`);
+                      else if (de.isBad && Math.abs(de.diff) > 30) parts.push(`with elevated leverage relative to peers`);
+                    }
+                    if (!parts.length) return null;
+                    return `${sel.name} is ${parts.slice(0, 3).join(', ')}.`;
+                  })();
+
                   return (
                     <Card className="p-6 mb-6">
                       <h3 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">Competitive Profile</h3>
+                      {assessment && (
+                        <p className="text-sm text-slate-700 mb-5 leading-relaxed bg-slate-50 rounded-lg p-4 border-l-4 border-blue-500">
+                          {assessment}
+                        </p>
+                      )}
                       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                         {/* Radar */}
                         <div className="lg:col-span-2">
