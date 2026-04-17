@@ -220,9 +220,61 @@ function CompanyContent() {
               {/* Peer bar charts */}
               <div className="space-y-4">
                 <PeerBarChart company={company} peers={company.peers} metricKey="ebitda_margin" label="EBITDA Margin" suffix="%" />
-                <PeerBarChart company={company} peers={company.peers} metricKey="fwd_pe" label="Forward P/E" suffix="x" />
+                <PeerBarChart company={company} peers={company.peers} metricKey="roe" label="ROE" suffix="%" />
               </div>
             </div>
+          </Card>
+
+          {/* Industry Deep-Dive */}
+          <Card className="p-6 mb-6">
+            <h2 className="text-sm font-semibold text-slate-300 mb-4">Industry Deep-Dive — KPI Benchmarking</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <PeerBarChart company={company} peers={company.peers} metricKey="revenue" label="Revenue Scale (M)" suffix="M" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="ebit_margin" label="EBIT Margin" suffix="%" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="net_margin" label="Net Margin" suffix="%" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="fwd_pe" label="Forward P/E" suffix="x" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="fwd_ev_ebitda" label="Forward EV/EBITDA" suffix="x" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="rev_growth" label="Revenue Growth" suffix="%" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="debt_equity" label="Debt / Equity" suffix="x" />
+              <PeerBarChart company={company} peers={company.peers} metricKey="net_debt_ebitda" label="Net Debt / EBITDA" suffix="x" />
+            </div>
+
+            {/* Peer group summary stats */}
+            {(() => {
+              const peerMetrics: { label: string; key: string; suffix: string }[] = [
+                { label: 'EBITDA Margin', key: 'ebitda_margin', suffix: '%' },
+                { label: 'Net Margin', key: 'net_margin', suffix: '%' },
+                { label: 'ROE', key: 'roe', suffix: '%' },
+                { label: 'Fwd P/E', key: 'fwd_pe', suffix: 'x' },
+                { label: 'Fwd EV/EBITDA', key: 'fwd_ev_ebitda', suffix: 'x' },
+                { label: 'D/E', key: 'debt_equity', suffix: 'x' },
+              ];
+              const allPeers = company.peers!;
+              return (
+                <div className="mt-6 pt-4 border-t border-slate-700">
+                  <h3 className="text-xs text-slate-400 mb-3 font-semibold">Peer Group Summary — Company vs Median</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {peerMetrics.map(({ label, key, suffix }) => {
+                      const compVal = (company as unknown as Record<string, number | undefined>)[key];
+                      const peerVals = allPeers.map(p => (p as unknown as Record<string, number | undefined>)[key]).filter(v => v != null) as number[];
+                      if (!peerVals.length || compVal == null) return null;
+                      const med = median(peerVals);
+                      const diff = ((compVal - med) / Math.abs(med) * 100);
+                      return (
+                        <div key={key} className="bg-slate-900/50 rounded-lg p-3">
+                          <div className="text-[10px] text-slate-500">{label}</div>
+                          <div className="text-lg font-bold text-white">{compVal.toFixed(1)}{suffix}</div>
+                          <div className="text-xs text-slate-400">Median: {med.toFixed(1)}{suffix}</div>
+                          <div className={`text-xs font-semibold ${diff > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {diff > 0 ? '+' : ''}{diff.toFixed(0)}% vs peers
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </Card>
 
           {/* Full Peer Table */}
