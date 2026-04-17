@@ -591,7 +591,7 @@ export default function Dashboard() {
                     { key: 'roe', label: 'ROE', hb: true },
                     { key: 'fwd_pe', label: 'Valuation', hb: false },
                     { key: 'fwd_rev_growth', label: 'Growth', hb: true },
-                    { key: 'debt_equity', label: 'Leverage', hb: false },
+                    { key: 'debt_equity', label: 'D/E Ratio', hb: false },
                   ];
                   const radarData = radarAxes.map(a => {
                     const cv = (sel as unknown as Record<string, number | undefined>)[a.key];

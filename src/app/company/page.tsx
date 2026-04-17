@@ -112,7 +112,7 @@ function CompanyContent() {
       { key: 'roe', label: 'ROE', hb: true },
       { key: 'fwd_pe', label: 'Valuation', hb: false },
       { key: 'fwd_rev_growth', label: 'Growth', hb: true },
-      { key: 'debt_equity', label: 'Leverage', hb: false },
+      { key: 'debt_equity', label: 'D/E Ratio', hb: false },
     ];
     return axes.map(a => {
       const cv = (company as unknown as Record<string, number | undefined>)[a.key];
