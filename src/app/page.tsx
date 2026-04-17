@@ -360,8 +360,8 @@ export default function Dashboard() {
                     ['roe', 'ROE Trend', '%'],
                     ['net_margin', 'Net Margin Trend', '%'],
                   ];
-                  const allYears = new Set<number>();
-                  sectorCos.forEach(c => { if (c.kpi_history) Object.keys(c.kpi_history).forEach(y => allYears.add(Number(y))); });
+                  const allYears = new Set<string>();
+                  sectorCos.forEach(c => { if (c.kpi_history) Object.keys(c.kpi_history).forEach(y => allYears.add(y)); });
                   const sortedYears = [...allYears].sort();
                   if (sortedYears.length < 2) return null;
                   const hlCompany = selectedIndCompany ? sectorCos.find(c => c.id === selectedIndCompany) : null;
@@ -711,8 +711,8 @@ export default function Dashboard() {
                     ['ebit_margin', 'EBIT Margin', '%'],
                     ['roe', 'ROE', '%'],
                   ];
-                  const allYears = new Set<number>();
-                  [sel, ...industryCos].forEach(c => { if (c.kpi_history) Object.keys(c.kpi_history).forEach(y => allYears.add(Number(y))); });
+                  const allYears = new Set<string>();
+                  [sel, ...industryCos].forEach(c => { if (c.kpi_history) Object.keys(c.kpi_history).forEach(y => allYears.add(y)); });
                   const yrs = [...allYears].sort();
                   if (yrs.length < 2) return null;
 
