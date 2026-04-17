@@ -49,6 +49,7 @@ function RegionBoxChart({ data, metricKey, label, suffix }: { data: Company[]; m
           <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={v => `${v}${suffix}`} axisLine={false} tickLine={false} />
           <YAxis type="category" dataKey="region" tick={{ fill: '#475569', fontSize: 11, fontWeight: 500 }} width={85} axisLine={false} tickLine={false} />
           <Tooltip
+            cursor={{ fill: 'rgba(0,0,0,0.04)' }}
             content={({ payload }) => {
               if (!payload?.length) return null;
               const d = payload[0]?.payload;
@@ -258,7 +259,7 @@ export default function Dashboard() {
                     tickFormatter={v => suffix === 'M' ? (v >= 1000 ? `${(v/1000).toFixed(0)}B` : `${v.toFixed(0)}M`) : `${v}${suffix}`} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 9, fill: '#475569' }} width={130} axisLine={false} tickLine={false}
                     tickFormatter={(v: string) => v.length > 20 ? v.substring(0, 18) + '…' : v} />
-                  <Tooltip {...TT} formatter={(v) => {
+                  <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} {...TT} formatter={(v) => {
                     const n = Number(v);
                     return [suffix === 'M' ? (n >= 1000 ? `${(n/1000).toFixed(1)}B` : `${n.toFixed(0)}M`) : `${n.toFixed(1)}${suffix}`, label];
                   }} />
@@ -502,7 +503,7 @@ export default function Dashboard() {
                     tickFormatter={v => suffix === 'M' ? (v >= 1000 ? `${(v/1000).toFixed(0)}B` : `${v.toFixed(0)}M`) : `${v}${suffix}`} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#475569' }} width={140} axisLine={false} tickLine={false}
                     tickFormatter={(v: string) => v.length > 22 ? v.substring(0, 20) + '…' : v} />
-                  <Tooltip {...TT} formatter={(v) => {
+                  <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} {...TT} formatter={(v) => {
                     const n = Number(v);
                     return [suffix === 'M' ? (n >= 1000 ? `${(n/1000).toFixed(1)}B` : `${n.toFixed(0)}M`) : `${n.toFixed(1)}${suffix}`, label];
                   }} />

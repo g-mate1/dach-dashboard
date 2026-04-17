@@ -46,7 +46,7 @@ function PeerBar({ company, peers, metricKey, label, suffix, lowerBetter = false
             }} />
           <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#475569' }} width={130} axisLine={false} tickLine={false}
             tickFormatter={(v: string) => v.length > 20 ? v.substring(0, 18) + '…' : v} />
-          <Tooltip {...TT} formatter={(v) => {
+          <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} {...TT} formatter={(v) => {
             const n = Number(v);
             if (suffix === 'M') return [n >= 1000 ? `${(n/1000).toFixed(1)}B` : `${n.toFixed(0)}M`, label];
             return [`${n.toFixed(1)}${suffix}`, label];
