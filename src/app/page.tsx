@@ -866,6 +866,15 @@ export default function Dashboard() {
                   </div>
                 </Card>
 
+                {/* Operational Efficiency */}
+                <Card className="p-6 mb-6">
+                  <h3 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">Operational Efficiency</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {peerBar('asset_turnover', 'Asset Turnover', 'x')}
+                    {peerBar('dso', 'Days Sales Outstanding', ' days', true)}
+                  </div>
+                </Card>
+
                 {/* Comparison table */}
                 <Card className="p-6 mb-6">
                   <h3 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">Full Comparison</h3>
@@ -881,6 +890,8 @@ export default function Dashboard() {
                           <th className="px-3 py-2 text-right">ROE</th>
                           <th className="px-3 py-2 text-right">D/E</th>
                           <th className="px-3 py-2 text-right">Fwd P/E</th>
+                          <th className="px-3 py-2 text-right">Asset Turn.</th>
+                          <th className="px-3 py-2 text-right">DSO</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -894,6 +905,8 @@ export default function Dashboard() {
                           <td className="px-3 py-2.5 text-right font-mono">{sel.roe?.toFixed(1) ?? '—'}</td>
                           <td className="px-3 py-2.5 text-right font-mono">{sel.debt_equity?.toFixed(2) ?? '—'}</td>
                           <td className="px-3 py-2.5 text-right font-mono">{sel.fwd_pe?.toFixed(1) ?? '—'}</td>
+                          <td className="px-3 py-2.5 text-right font-mono">{sel.asset_turnover?.toFixed(2) ?? '—'}</td>
+                          <td className="px-3 py-2.5 text-right font-mono">{sel.dso?.toFixed(0) ?? '—'}</td>
                         </tr>
                         {/* Peer rows */}
                         {peers.map(p => (
@@ -906,6 +919,8 @@ export default function Dashboard() {
                             <td className="px-3 py-2 text-right font-mono text-slate-600">{p.roe?.toFixed(1) ?? '—'}</td>
                             <td className="px-3 py-2 text-right font-mono text-slate-600">{p.debt_equity?.toFixed(2) ?? '—'}</td>
                             <td className="px-3 py-2 text-right font-mono text-slate-600">{p.fwd_pe?.toFixed(1) ?? '—'}</td>
+                            <td className="px-3 py-2 text-right font-mono text-slate-600">—</td>
+                            <td className="px-3 py-2 text-right font-mono text-slate-600">—</td>
                           </tr>
                         ))}
                         {/* Industry median row */}
@@ -918,6 +933,8 @@ export default function Dashboard() {
                           <td className="px-3 py-2.5 text-right font-mono text-amber-700">{industryMetrics('roe')?.toFixed(1) ?? '—'}</td>
                           <td className="px-3 py-2.5 text-right font-mono text-amber-700">{industryMetrics('debt_equity')?.toFixed(2) ?? '—'}</td>
                           <td className="px-3 py-2.5 text-right font-mono text-amber-700">{industryMetrics('fwd_pe')?.toFixed(1) ?? '—'}</td>
+                          <td className="px-3 py-2.5 text-right font-mono text-amber-700">{industryMetrics('asset_turnover')?.toFixed(2) ?? '—'}</td>
+                          <td className="px-3 py-2.5 text-right font-mono text-amber-700">{industryMetrics('dso')?.toFixed(0) ?? '—'}</td>
                         </tr>
                       </tbody>
                     </table>
