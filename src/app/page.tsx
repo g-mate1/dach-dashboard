@@ -648,31 +648,70 @@ export default function Dashboard() {
                     }
                   }
 
-                  // Comprehensive 1-2 sentence assessment
+                  // Comprehensive strategic assessment
                   const assessment = (() => {
-                    const parts: string[] = [];
-                    // Profitability positioning
-                    if (margin) {
-                      if (margin.isGood && Math.abs(margin.diff) > 20) parts.push(`a clear margin leader among peers (${margin.cv.toFixed(0)}% ${margin.label} vs ${margin.med.toFixed(0)}% median)`);
-                      else if (margin.isGood) parts.push(`above-average profitability (${margin.cv.toFixed(0)}% ${margin.label})`);
-                      else if (margin.isBad && Math.abs(margin.diff) > 20) parts.push(`significantly lower margins than peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%)`);
-                      else if (margin.isBad) parts.push(`below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%)`);
-                      else parts.push(`margins in line with peers (${margin.cv.toFixed(0)}%)`);
+                    const sentences: string[] = [];
+
+                    // Size context
+                    const revs = peers.filter(p => p.revenue != null).map(p => p.revenue!);
+                    const compRev = sel.revenue;
+                    const revMed = revs.length ? median(revs) : null;
+                    const isLargest = compRev != null && revs.length > 0 && compRev > Math.max(...revs);
+                    const isSmallest = compRev != null && revs.length > 0 && compRev < Math.min(...revs);
+                    const revRatio = compRev != null && revMed ? compRev / revMed : null;
+
+                    // Sentence 1: Strategic positioning (combines size + margin + what it means)
+                    if (margin && revRatio != null) {
+                      if (isLargest && margin.isGood) {
+                        sentences.push(`${sel.name} is the largest player in its peer group and converts that scale into above-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% peer median), suggesting strong competitive positioning and pricing power.`);
+                      } else if (isLargest && margin.isBad) {
+                        sentences.push(`Despite being the largest company in its peer group by revenue, ${sel.name} operates with below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), indicating a volume-driven strategy that has yet to deliver margin leadership.`);
+                      } else if (isSmallest && margin.isGood) {
+                        sentences.push(`${sel.name} is the smallest player in its peer group but achieves superior margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), pointing to a focused niche strategy with differentiated pricing.`);
+                      } else if (isSmallest && margin.isBad) {
+                        sentences.push(`As the smallest company among peers, ${sel.name} lacks the scale advantages of competitors, reflected in below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%).`);
+                      } else if (margin.isGood && Math.abs(margin.diff) > 20) {
+                        sentences.push(`${sel.name} stands out as a margin leader among peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% median), suggesting structural cost advantages or a differentiated market position.`);
+                      } else if (margin.isBad) {
+                        sentences.push(`${sel.name} operates with lower margins than peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), which may reflect a different business mix, geographic exposure, or ongoing transformation.`);
+                      } else {
+                        sentences.push(`${sel.name} operates with margins broadly in line with its peer group (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% median).`);
+                      }
+                    } else if (margin) {
+                      sentences.push(`${sel.name} operates at ${margin.cv.toFixed(0)}% ${margin.label} ${margin.isGood ? 'above' : margin.isBad ? 'below' : 'in line with'} the peer median of ${margin.med.toFixed(0)}%.`);
                     }
-                    // Valuation context
-                    if (pe) {
-                      if (pe.isGood && Math.abs(pe.diff) > 20) parts.push(`trading at a notable valuation discount (${pe.cv.toFixed(0)}x P/E vs ${pe.med.toFixed(0)}x)`);
-                      else if (pe.isGood) parts.push(`valued below peers (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x P/E)`);
-                      else if (pe.isBad && Math.abs(pe.diff) > 20) parts.push(`commanding a significant premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x P/E)`);
-                      else if (pe.isBad) parts.push(`trading above peer median valuation`);
+
+                    // Sentence 2: Valuation + margin trend = market view
+                    const trendChange = (() => {
+                      if (!sel.kpi_history) return null;
+                      const yrs = Object.keys(sel.kpi_history).sort();
+                      if (yrs.length < 2) return null;
+                      const first = sel.kpi_history[yrs[0]]?.ebit_margin ?? sel.kpi_history[yrs[0]]?.ebitda_margin;
+                      const last = sel.kpi_history[yrs[yrs.length-1]]?.ebit_margin ?? sel.kpi_history[yrs[yrs.length-1]]?.ebitda_margin;
+                      if (first == null || last == null) return null;
+                      return { change: last - first, years: yrs.length };
+                    })();
+
+                    if (pe && trendChange) {
+                      if (pe.isGood && trendChange.change > 1) {
+                        sentences.push(`The market has not yet fully repriced an improving margin trajectory (+${trendChange.change.toFixed(1)}pp over ${trendChange.years} years), with the stock trading at ${pe.cv.toFixed(0)}x P/E — ${Math.abs(pe.diff).toFixed(0)}% below peer median.`);
+                      } else if (pe.isBad && trendChange.change > 1) {
+                        sentences.push(`The premium valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x peers) appears supported by margin improvement of +${trendChange.change.toFixed(1)}pp, with the market pricing in continued operational progress.`);
+                      } else if (pe.isGood && trendChange.change < -1) {
+                        sentences.push(`Declining margins (${trendChange.change.toFixed(1)}pp) combined with a below-peer valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x) suggest the market is pricing in continued headwinds.`);
+                      } else if (pe.isBad && trendChange.change < -1) {
+                        sentences.push(`Despite declining margins (${trendChange.change.toFixed(1)}pp), the stock trades at a premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x), potentially reflecting expectations of a strategic pivot or recovery.`);
+                      } else if (pe.isGood) {
+                        sentences.push(`At ${pe.cv.toFixed(0)}x forward P/E (${Math.abs(pe.diff).toFixed(0)}% below peers), the valuation may offer upside if current fundamentals are sustained.`);
+                      } else if (pe.isBad) {
+                        sentences.push(`The market assigns a valuation premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x peers), likely reflecting growth expectations or perceived quality advantages.`);
+                      }
+                    } else if (pe) {
+                      if (pe.isGood) sentences.push(`At ${pe.cv.toFixed(0)}x forward P/E (${Math.abs(pe.diff).toFixed(0)}% below peers), the stock may be undervalued relative to its fundamental profile.`);
+                      else if (pe.isBad) sentences.push(`The valuation premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x peers) reflects the market's confidence in the company's competitive position.`);
                     }
-                    // Balance sheet
-                    if (de) {
-                      if (de.isGood) parts.push(`with a conservative balance sheet`);
-                      else if (de.isBad && Math.abs(de.diff) > 30) parts.push(`with elevated leverage relative to peers`);
-                    }
-                    if (!parts.length) return null;
-                    return `${sel.name} is ${parts.slice(0, 3).join(', ')}.`;
+
+                    return sentences.length ? sentences.join(' ') : null;
                   })();
 
                   return (
