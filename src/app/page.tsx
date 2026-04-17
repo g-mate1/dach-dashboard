@@ -87,6 +87,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState<'overview' | 'industries' | 'peers'>('overview');
   const [selectedPeer, setSelectedPeer] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("");
+  const [selectedIndCompany, setSelectedIndCompany] = useState("");
 
   const filtered = useMemo(() => {
     let d = companies;
@@ -237,15 +238,20 @@ export default function Dashboard() {
           };
         });
 
+        const highlightId = selectedIndCompany;
         const indBar = (cos: Company[], key: keyof Company, label: string, suffix: string, top = 15) => {
-          const items = cos.filter(c => c[key] != null).sort((a, b) => (b[key] as number) - (a[key] as number)).slice(0, top);
+          let items = cos.filter(c => c[key] != null).sort((a, b) => (b[key] as number) - (a[key] as number));
+          // If a company is selected, ensure it's included even if not in top N
+          const highlighted = highlightId ? items.find(c => c.id === highlightId) : null;
+          items = items.slice(0, top);
+          if (highlighted && !items.find(c => c.id === highlightId)) items.push(highlighted);
           if (items.length < 2) return null;
-          const med = median(items.map(c => c[key] as number));
+          const med = median(cos.filter(c => c[key] != null).map(c => c[key] as number));
           return (
             <Card className="p-5">
               <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{label} — Top {Math.min(top, items.length)}</div>
               <ResponsiveContainer width="100%" height={Math.max(140, items.length * 26 + 20)}>
-                <BarChart data={items.map(c => ({ name: c.name, value: c[key] as number }))} layout="vertical">
+                <BarChart data={items.map(c => ({ name: c.name, value: c[key] as number, isHighlight: c.id === highlightId }))} layout="vertical">
                   <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false}
                     tickFormatter={v => suffix === 'M' ? (v >= 1000 ? `${(v/1000).toFixed(0)}B` : `${v.toFixed(0)}M`) : `${v}${suffix}`} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 9, fill: '#475569' }} width={130} axisLine={false} tickLine={false}
@@ -254,8 +260,10 @@ export default function Dashboard() {
                     const n = Number(v);
                     return [suffix === 'M' ? (n >= 1000 ? `${(n/1000).toFixed(1)}B` : `${n.toFixed(0)}M`) : `${n.toFixed(1)}${suffix}`, label];
                   }} />
-                  <ReferenceLine x={med} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: `Med ${med.toFixed(1)}`, position: 'top', fill: '#94a3b8', fontSize: 9 }} />
-                  <Bar dataKey="value" radius={[0, 3, 3, 0]} fill={SECTOR_COLORS[selSector] || '#94a3b8'} opacity={0.7} />
+                  <ReferenceLine x={med} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: `Med ${med.toFixed(1)}${suffix}`, position: 'top', fill: '#94a3b8', fontSize: 9 }} />
+                  <Bar dataKey="value" radius={[0, 3, 3, 0]}>
+                    {items.map((c, i) => <Cell key={i} fill={c.id === highlightId ? '#2563eb' : (SECTOR_COLORS[selSector] || '#94a3b8')} opacity={c.id === highlightId ? 1 : 0.5} />)}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -265,13 +273,22 @@ export default function Dashboard() {
         return (
           <div className="mb-10">
             <div className="flex items-center gap-4 mb-6">
-              <select value={selSector} onChange={e => setSelectedIndustry(e.target.value)}
+              <select value={selSector} onChange={e => { setSelectedIndustry(e.target.value); setSelectedIndCompany(""); }}
                 className="bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm w-80 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
                 <option value="">Select an industry...</option>
                 {sectors.map(s => (
                   <option key={s} value={s}>{s} ({companies.filter(c => c.broad_sector === s).length} companies)</option>
                 ))}
               </select>
+              {selSector && (
+                <select value={selectedIndCompany} onChange={e => setSelectedIndCompany(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm w-80 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                  <option value="">Highlight a company...</option>
+                  {sectorCos.sort((a, b) => a.name.localeCompare(b.name)).map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {!selSector ? (
@@ -415,9 +432,9 @@ export default function Dashboard() {
                       </thead>
                       <tbody>
                         {sectorCos.sort((a, b) => (b.revenue ?? 0) - (a.revenue ?? 0)).map(c => (
-                          <tr key={c.id} className="border-b border-slate-100 hover:bg-blue-50/50 cursor-pointer">
+                          <tr key={c.id} className={`border-b border-slate-100 hover:bg-blue-50/50 cursor-pointer ${c.id === selectedIndCompany ? 'bg-blue-50' : ''}`} onClick={() => setSelectedIndCompany(c.id === selectedIndCompany ? '' : c.id)}>
                             <td className="px-3 py-2">
-                              <Link href={`/company?id=${c.id}`} className="text-slate-800 hover:text-blue-600 font-medium">{c.name}</Link>
+                              <Link href={`/company?id=${c.id}`} className={`hover:text-blue-600 font-medium ${c.id === selectedIndCompany ? 'text-blue-700 font-semibold' : 'text-slate-800'}`}>{c.name}</Link>
                               {c.has_peers && <span className="text-[10px] text-blue-500 font-medium ml-1">PEERS</span>}
                             </td>
                             <td className="px-3 py-2 text-center">
