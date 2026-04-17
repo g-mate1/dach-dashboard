@@ -665,15 +665,15 @@ export default function Dashboard() {
                       if (isLargest && margin.isGood) {
                         sentences.push(`${sel.name} is the largest player in its peer group and converts that scale into above-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% peer median), suggesting strong competitive positioning and pricing power.`);
                       } else if (isLargest && margin.isBad) {
-                        sentences.push(`Despite being the largest company in its peer group by revenue, ${sel.name} operates with below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), indicating a volume-driven strategy that has yet to deliver margin leadership.`);
+                        sentences.push(`${sel.name} is the largest company in its peer group by revenue, with margins (${margin.cv.toFixed(0)}%) currently below the peer median (${margin.med.toFixed(0)}%), which may reflect a broader business mix or different strategic priorities.`);
                       } else if (isSmallest && margin.isGood) {
-                        sentences.push(`${sel.name} is the smallest player in its peer group but achieves superior margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), pointing to a focused niche strategy with differentiated pricing.`);
+                        sentences.push(`${sel.name} is a smaller player in its peer group but achieves above-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), consistent with a focused market approach.`);
                       } else if (isSmallest && margin.isBad) {
-                        sentences.push(`As the smallest company among peers, ${sel.name} lacks the scale advantages of competitors, reflected in below-average margins (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%).`);
+                        sentences.push(`${sel.name} is a smaller participant in its peer group, with margins (${margin.cv.toFixed(0)}%) currently developing toward the peer median (${margin.med.toFixed(0)}%).`);
                       } else if (margin.isGood && Math.abs(margin.diff) > 20) {
                         sentences.push(`${sel.name} stands out as a margin leader among peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% median), suggesting structural cost advantages or a differentiated market position.`);
                       } else if (margin.isBad) {
-                        sentences.push(`${sel.name} operates with lower margins than peers (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}%), which may reflect a different business mix, geographic exposure, or ongoing transformation.`);
+                        sentences.push(`${sel.name} operates with margins (${margin.cv.toFixed(0)}%) below the peer median (${margin.med.toFixed(0)}%), which may reflect a different business mix, geographic exposure, or evolving strategic direction.`);
                       } else {
                         sentences.push(`${sel.name} operates with margins broadly in line with its peer group (${margin.cv.toFixed(0)}% vs ${margin.med.toFixed(0)}% median).`);
                       }
@@ -698,9 +698,9 @@ export default function Dashboard() {
                       } else if (pe.isBad && trendChange.change > 1) {
                         sentences.push(`The premium valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x peers) appears supported by margin improvement of +${trendChange.change.toFixed(1)}pp, with the market pricing in continued operational progress.`);
                       } else if (pe.isGood && trendChange.change < -1) {
-                        sentences.push(`Declining margins (${trendChange.change.toFixed(1)}pp) combined with a below-peer valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x) suggest the market is pricing in continued headwinds.`);
+                        sentences.push(`With margins adjusting (${trendChange.change.toFixed(1)}pp) and a below-peer valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x), the market appears to be awaiting further clarity on the operational trajectory.`);
                       } else if (pe.isBad && trendChange.change < -1) {
-                        sentences.push(`Despite declining margins (${trendChange.change.toFixed(1)}pp), the stock trades at a premium (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x), potentially reflecting expectations of a strategic pivot or recovery.`);
+                        sentences.push(`The valuation (${pe.cv.toFixed(0)}x vs ${pe.med.toFixed(0)}x peers) remains above the peer median despite recent margin adjustments (${trendChange.change.toFixed(1)}pp), which may reflect confidence in the company's longer-term positioning.`);
                       } else if (pe.isGood) {
                         sentences.push(`At ${pe.cv.toFixed(0)}x forward P/E (${Math.abs(pe.diff).toFixed(0)}% below peers), the valuation may offer upside if current fundamentals are sustained.`);
                       } else if (pe.isBad) {
